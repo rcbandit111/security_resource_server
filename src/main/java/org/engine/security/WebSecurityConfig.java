@@ -1,6 +1,8 @@
 package org.engine.security;
 
+import org.engine.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -13,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -26,7 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private UserAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -50,13 +54,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
             .antMatchers("/users/confirmation_token").permitAll()
             .antMatchers("/users/reset_user_password").permitAll()
             // Disallow everything else..
-            .anyRequest().authenticated();
+            .anyRequest().authenticated()
+        .and()
+            .oauth2ResourceServer()
+            .jwt();
 
         // If a user try to access a resource without having enough permissions
         http.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint);
-
-        // Apply JWT
-        http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
     }
 
     @Override
@@ -71,6 +75,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
                 .antMatchers("/users/reset_password")
                 .antMatchers("/users/confirmation_token")
                 .antMatchers("/users/reset_user_password");
+    }
+
+    @Bean
+    JwtDecoder jwtDecoder(OAuth2ResourceServerProperties properties) {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(properties.getJwt().getJwkSetUri()).build();
+        jwtDecoder.setClaimSetConverter(new OrganizationSubClaimAdapter());
+        return jwtDecoder;
     }
 
     @Bean

@@ -2,8 +2,8 @@ package org.engine.service;
 
 import org.engine.production.entity.Users;
 import org.engine.production.service.UsersService;
-import org.engine.security.JwtTokenUtil;
-import org.engine.security.JwtUser;
+import org.engine.security.jwt.JwtTokenUtil;
+import org.engine.security.jwt.JwtUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

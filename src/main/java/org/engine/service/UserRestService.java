@@ -5,7 +5,7 @@ import org.engine.exception.EngineException;
 import org.engine.exception.ErrorDetail;
 import org.engine.production.entity.Users;
 import org.engine.production.service.UsersService;
-import org.engine.security.JwtTokenProvider;
+import org.engine.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
